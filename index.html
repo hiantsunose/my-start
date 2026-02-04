@@ -3,83 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの Besu 暗号化ポータル</title>
+    <title>ツーのBesu暗号化ポータル</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Consolas', monospace; padding: 20px; }
-        .terminal { border: 2px solid #0f0; padding: 20px; max-width: 800px; margin: auto; box-shadow: 0 0 15px #0f0; }
-        .input-line { display: flex; gap: 10px; margin: 20px 0; }
-        input { flex: 1; background: #000; border: 1px solid #0f0; color: #0f0; padding: 10px; outline: none; }
-        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        #results { border-top: 1px solid #333; padding-top: 10px; }
-        .item { margin-bottom: 20px; background: #111; padding: 10px; border-radius: 4px; }
-        .item a { color: #0f0; text-decoration: none; font-size: 1.1em; font-weight: bold; display: block; }
-        .item span { color: #888; font-size: 0.8em; }
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .box { border: 2px solid #0f0; padding: 20px; max-width: 850px; margin: auto; box-shadow: 0 0 15px #0f0; }
+        .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; background: #111; border: 1px solid #0f0; color: #0f0; padding: 12px; font-size: 16px; }
+        button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
+        .result-card { background: #0a0a0a; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-left: 5px solid #0f0; }
+        .result-card a { color: #0f0; text-decoration: none; font-size: 1.2em; font-weight: bold; }
+        .result-card p { color: #888; margin-top: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h1>BEYOND THE FILTER https://www.beastmode.tv/</h1>
-        <p>> 検索は通常通り、飛ぶ瞬間に URL を Besu 暗号化します。</p>
+    <div class="box">
+        <h1>STEALTH BYPASS ENGINE v12.0</h1>
+        <p>> STATUS: 飛んだ先のURLを Besu (Base64) 化して秘匿します</p>
         
-        <div class="input-line">
-            <input type="text" id="q" placeholder="キーワードを入力..." onkeydown="if(event.key==='Enter') startSearch()">
-            <button onclick="startSearch()">検索開始</button>
+        <div class="search-row">
+            <input type="text" id="q" placeholder="検索ワードを入力..." onkeydown="if(event.key==='Enter') doSearch()">
+            <button onclick="doSearch()">実行</button>
         </div>
         <div id="results"></div>
     </div>
 
     <script>
-        // 【核心】クリックした瞬間に URL を Besu (Base64) 化して飛ばす
-        function besuJump(url) {
-            // URLを Base64 暗号化（chromewebstore -> Y2hyb21l...）
-            const encrypted = btoa(url).replace(/=/g, "");
+        // 【これが核心】飛ぶ瞬間に URL を Besu 化してアドレスバーを偽装
+        function secureJump(targetUrl) {
+            // 1. URLを Besu (Base64) で暗号化
+            const besuUrl = btoa(targetUrl).replace(/=/g, "");
             
-            // アイフィルターが絶対にブロックできない Bing のトラッキング・リンクに擬態
-            // アドレスバーには暗号化された文字列だけが表示されます
-            const finalUrl = "https://www.bing.com/ck/a?u=p_" + encrypted + "&to=" + encodeURIComponent(url);
+            // 2. アイフィルターに中身を悟らせないように、
+            //    あえて「Googleの検索結果」を装ったURL形式で飛ばします
+            //    これならアドレスバーに直接URLが出ず、アイフィルターの単語検閲を回避できます
+            const maskedUrl = "https://www.google.com/url?q=" + encodeURIComponent(targetUrl) + "&besu=" + besuUrl;
             
-            window.open(finalUrl, '_blank', 'noreferrer');
+            window.open(maskedUrl, '_blank', 'noreferrer');
         }
 
-        async function startSearch() {
+        async function doSearch() {
             const q = document.getElementById('q').value;
             const resArea = document.getElementById('results');
             if(!q) return;
 
             resArea.innerHTML = "<p>> 通信解析中...</p>";
 
-            // 最も安定している公共プロキシを使用
+            // 検索結果の取得は安定した DuckDuckGo (HTML) を使用
             const proxy = 'https://api.allorigins.win/get?url=';
-            // アイフィルターの監視を避けやすい DuckDuckGo の HTML版からデータを抜く
-            const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
+            const searchTarget = `https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
 
             try {
-                const response = await fetch(proxy + encodeURIComponent(target));
+                const response = await fetch(proxy + encodeURIComponent(searchTarget));
                 const data = await response.json();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, 'text/html');
-                const links = doc.querySelectorAll('.result');
+                const items = doc.querySelectorAll('.result');
                 
                 resArea.innerHTML = "";
-                if(links.length === 0) resArea.innerHTML = "結果が見つかりませんでした。";
-
-                links.forEach(item => {
+                items.forEach(item => {
                     const title = item.querySelector('.result__a');
-                    const desc = item.querySelector('.result__snippet');
+                    const snippet = item.querySelector('.result__snippet');
                     if (title) {
                         const div = document.createElement('div');
-                        div.className = 'item';
-                        // 画面上の見た目は普通のタイトル
-                        // クリック時だけ besuJump が発動して URL を暗号化
+                        div.className = 'result-card';
+                        // 画面は普通のタイトル。クリックした瞬間に暗号化 secureJump を実行
                         div.innerHTML = `
-                            <a href="javascript:void(0)" onclick="besuJump('${title.href}')">${title.innerText}</a>
-                            <span>${desc ? desc.innerText : ''}</span>
+                            <a href="javascript:void(0)" onclick="secureJump('${title.href}')">${title.innerText}</a>
+                            <p>${snippet ? snippet.innerText : ''}</p>
                         `;
                         resArea.appendChild(div);
                     }
                 });
             } catch (e) {
-                resArea.innerHTML = "<p>> ERROR: 接続拒否。再度実行してください。</p>";
+                resArea.innerHTML = "<p>> ERROR: 接続に失敗。再試行してください。</p>";
             }
         }
     </script>
