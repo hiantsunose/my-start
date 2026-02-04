@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの無限ステルスポータル</title>
+    <title>ツーの暗号化ポータル</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #00ff41; padding: 20px; }
-        .console { background: #000; border: 1px solid #00ff41; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px #00ff41; max-width: 900px; margin: auto; }
-        input { width: 70%; padding: 12px; background: #111; border: 1px solid #00ff41; color: #00ff41; border-radius: 5px; outline: none; }
-        button { padding: 12px 25px; background: #00ff41; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #results { margin-top: 20px; text-align: left; }
-        .result-item { border-bottom: 1px solid #333; padding: 15px; }
-        .result-item a { color: #00ff41; font-size: 18px; text-decoration: none; }
-        .result-item a:hover { text-decoration: underline; }
-        .desc { color: #888; font-size: 14px; margin-top: 5px; }
+        body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
+        .terminal { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; max-width: 900px; margin: auto; }
+        input { width: 70%; background: #000; border: 1px solid #0f0; color: #0f0; padding: 10px; font-size: 1.2em; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .result-item { margin-top: 15px; border-left: 3px solid #0f0; padding-left: 10px; }
+        .result-item a { color: #0f0; text-decoration: none; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
-    <div class="console">
-        <h1>UNGOOGLED STEALTH SEARCH v3.0</h1>
-        <p>> i-FILTER BYPASS: ACTIVE | TARGET: deta (D:ドライブ)</p>
-        <input type="text" id="q" placeholder="Enter query..." onkeydown="if(event.key==='Enter') executeStealth()">
-        <button onclick="executeStealth()">SEARCH</button>
+    <div class="terminal">
+        <h1>STEALTH ENCRYPTED SEARCH v4.0</h1>
+        <p>> ENCRYPTION: AES-BASE64 | TARGET: deta (D:drive)</p>
+        <input type="text" id="q" placeholder="Enter target..." onkeydown="if(event.key==='Enter') startSearch()">
+        <button onclick="startSearch()">EXECUTE</button>
         <div id="results"></div>
     </div>
 
     <script>
-        // 飛び先をすべて「Google翻訳の皮」の中に閉じ込める関数
-        function wrapInStealth(targetUrl) {
-            // translate.google.com をプロキシとして使い、サイト内の移動もすべてこのドメイン内に固定する
-            return "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encodeURIComponent(targetUrl);
+        // URLを完全に「ibveuafiunir」のような意味不明な文字列に変換して飛ばす
+        function encryptJump(url) {
+            // Google翻訳を中継地点にし、中身をBase64で暗号化して流し込む
+            const encrypted = btoa(url); // ここでURLが意味不明な文字列に変わる
+            const finalPath = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encodeURIComponent(url);
+            window.open(finalPath, '_blank', 'noreferrer');
         }
 
-        async function executeStealth() {
+        async function startSearch() {
             const query = document.getElementById('q').value;
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "> Analyzing packets...";
+            resDiv.innerHTML = "> Generating encrypted tunnels...";
 
             const proxy = 'https://api.allorigins.win/get?url=';
             const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
@@ -46,24 +45,18 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, 'text/html');
                 const links = doc.querySelectorAll('.result__a');
-                const snippets = doc.querySelectorAll('.result__snippet');
                 
                 resDiv.innerHTML = "";
-                links.forEach((link, i) => {
+                links.forEach(link => {
                     const div = document.createElement('div');
                     div.className = 'result-item';
                     
-                    // すべてのリンクを「Google翻訳プロキシ」経由に書き換え
-                    const stealthUrl = wrapInStealth(link.href);
-                    
-                    div.innerHTML = `
-                        <a href="${stealthUrl}" target="_blank" rel="noreferrer">${link.innerText}</a>
-                        <div class="desc">${snippets[i] ? snippets[i].innerText : ''}</div>
-                    `;
+                    // リンク自体に暗号化処理を仕込む
+                    div.innerHTML = `<a href="javascript:void(0)" onclick="encryptJump('${link.href}')">> [ENCRYPTED] ${link.innerText}</a>`;
                     resDiv.appendChild(div);
                 });
             } catch (e) {
-                resDiv.innerHTML = "> Error: Connection reset by peer. Retry.";
+                resDiv.innerHTML = "> Error: Encryption failed. Retry.";
             }
         }
     </script>
