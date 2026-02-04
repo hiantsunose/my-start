@@ -3,42 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの専用検索ポータル</title>
+    <title>ツーの完全無料ステルスポータル</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
-        .search-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
-        input { width: 70%; padding: 15px; border: 2px solid #007bff; border-radius: 30px; font-size: 18px; outline: none; }
-        .result-frame { width: 100%; height: 600px; border: 2px dashed #ccc; margin-top: 20px; border-radius: 10px; background: #fff; }
-        .warning { color: #d9534f; font-size: 12px; margin-top: 10px; }
+        body { font-family: sans-serif; background: #121212; color: #e0e0e0; padding: 20px; }
+        .search-box { background: #1e1e1e; padding: 30px; border-radius: 15px; max-width: 800px; margin: auto; text-align: center; border: 1px solid #333; }
+        input { width: 70%; padding: 15px; border-radius: 30px; border: 1px solid #444; background: #252525; color: white; font-size: 18px; }
+        button { padding: 15px 30px; border-radius: 30px; background: #ff5722; color: white; border: none; cursor: pointer; font-weight: bold; }
+        #results { margin-top: 30px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .result-item { background: #1e1e1e; padding: 20px; margin-bottom: 15px; border-radius: 10px; border-bottom: 2px solid #333; }
+        .result-item a { color: #5c9aff; font-size: 18px; text-decoration: none; }
+        .snippet { font-size: 14px; color: #aaa; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="search-container">
-        <h1>ツー専用・検閲無効化エンジン</h1>
-        <p>※検索結果はこのページの中に安全に表示されます</p>
-        
-        <input type="text" id="searchInput" placeholder="調べたいことを入力...">
-        <button onclick="launchStealth()" style="padding: 15px 30px; border-radius: 30px; background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-left: 10px;">ステルス表示</button>
-
-        <div class="warning">※アイフィルターはこの通信を「GitHub での作業」として認識します。</div>
-
-        <iframe id="stealthFrame" class="result-frame" name="stealthFrame" src="about:blank"></iframe>
+    <div class="search-box">
+        <h1>ツー専用・完全無料検索窓</h1>
+        <p>※カード不要、APIキー不要で検閲を回避します</p>
+        <input type="text" id="q" placeholder="検索ワード...">
+        <button onclick="freeSearch()">ステルス検索</button>
     </div>
+    <div id="results"></div>
 
     <script>
-        function launchStealth() {
-            const query = document.getElementById('searchInput').value;
-            if(!query) return;
+        async function freeSearch() {
+            const query = document.getElementById('q').value;
+            const resDiv = document.getElementById('results');
+            resDiv.innerHTML = "解析中...";
+
+            // カード不要で使えるスクレイピング・プロキシを利用
+            const proxy = 'https://api.allorigins.win/get?url=';
+            const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
             
-            // 1. Google 検索の URL を作成
-            const target = "https://www.google.com/search?q=" + encodeURIComponent(query);
-            
-            // 2. Google 翻訳（プロキシ）という『皮』を被せて、iframe 内に流し込む
-            // これにより、通信先は常に translate.google.com になり、アイフィルターを欺けます
-            const proxyUrl = "https://translate.google.com/translate?sl=en&tl=ja&u=" + encodeURIComponent(target);
-            
-            const frame = document.getElementById('stealthFrame');
-            frame.src = proxyUrl;
+            try {
+                const response = await fetch(proxy + encodeURIComponent(target));
+                const data = await response.json();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                
+                // 検索結果のパーツを抽出
+                const links = doc.querySelectorAll('.result__a');
+                const snippets = doc.querySelectorAll('.result__snippet');
+                
+                resDiv.innerHTML = "";
+                links.forEach((link, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    
+                    // 飛び先もステルス化（Google翻訳を皮にする）
+                    const stealthUrl = "https://translate.google.com/translate?sl=en&tl=ja&u=" + encodeURIComponent(link.href);
+                    
+                    div.innerHTML = `
+                        <a href="${stealthUrl}" target="_blank">${link.innerText}</a>
+                        <div class="snippet">${snippets[i] ? snippets[i].innerText : ''}</div>
+                    `;
+                    resDiv.appendChild(div);
+                });
+            } catch (e) {
+                resDiv.innerHTML = "エラーが発生しました。再試行してください。";
+            }
         }
     </script>
 </body>
