@@ -3,38 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの暗号化ポータル</title>
+    <title>ツーの極秘ポータル v5.0</title>
     <style>
         body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
         .terminal { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; max-width: 900px; margin: auto; }
         input { width: 70%; background: #000; border: 1px solid #0f0; color: #0f0; padding: 10px; font-size: 1.2em; }
         button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
         .result-item { margin-top: 15px; border-left: 3px solid #0f0; padding-left: 10px; }
-        .result-item a { color: #0f0; text-decoration: none; font-weight: bold; font-size: 1.1em; }
+        .result-item a { color: #0f0; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>STEALTH ENCRYPTED SEARCH v4.0</h1>
-        <p>> ENCRYPTION: AES-BASE64 | TARGET: deta (D:drive)</p>
+        <h1>STEALTH ENCRYPTED SEARCH v5.0</h1>
+        <p>> i-FILTER BYPASS: MAX_ENCRYPTION | TARGET: deta</p>
         <input type="text" id="q" placeholder="Enter target..." onkeydown="if(event.key==='Enter') startSearch()">
         <button onclick="startSearch()">EXECUTE</button>
         <div id="results"></div>
     </div>
 
     <script>
-        // URLを完全に「ibveuafiunir」のような意味不明な文字列に変換して飛ばす
-        function encryptJump(url) {
-            // Google翻訳を中継地点にし、中身をBase64で暗号化して流し込む
-            const encrypted = btoa(url); // ここでURLが意味不明な文字列に変わる
-            const finalPath = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encodeURIComponent(url);
-            window.open(finalPath, '_blank', 'noreferrer');
+        // URLを「ibveuafiunir」のようなゴミデータに変換して、プロキシに投げる
+        function superStealthJump(rawUrl) {
+            // 1. URLをBase64でぐちゃぐちゃにする
+            const encodedUrl = btoa(rawUrl);
+            
+            // 2. 匿名プロキシを利用し、パラメータとして暗号化文字列を渡す
+            // これにより、アイフィルターのログには「google」等の文字が一切残らなくなります
+            const proxyBase = "https://ans-wers.com/index.php?q=";
+            window.open(proxyBase + encodedUrl, '_blank', 'noreferrer');
         }
 
         async function startSearch() {
             const query = document.getElementById('q').value;
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "> Generating encrypted tunnels...";
+            resDiv.innerHTML = "> Encrypting session...";
 
             const proxy = 'https://api.allorigins.win/get?url=';
             const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
@@ -50,13 +53,12 @@
                 links.forEach(link => {
                     const div = document.createElement('div');
                     div.className = 'result-item';
-                    
-                    // リンク自体に暗号化処理を仕込む
-                    div.innerHTML = `<a href="javascript:void(0)" onclick="encryptJump('${link.href}')">> [ENCRYPTED] ${link.innerText}</a>`;
+                    // クリックした瞬間に「生URL」を暗号化関数に渡す
+                    div.innerHTML = `<a href="javascript:void(0)" onclick="superStealthJump('${link.href}')">> [ENCRYPTED_TARGET] ${link.innerText}</a>`;
                     resDiv.appendChild(div);
                 });
             } catch (e) {
-                resDiv.innerHTML = "> Error: Encryption failed. Retry.";
+                resDiv.innerHTML = "> Connection Error. Retry.";
             }
         }
     </script>
