@@ -3,39 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの極秘ポータル</title>
+    <title>ツーの専用検索ポータル</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .secret-link { color: #d9534f; font-weight: bold; text-decoration: none; display: block; margin-top: 20px; }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .search-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        input { width: 70%; padding: 15px; border: 2px solid #007bff; border-radius: 30px; font-size: 18px; outline: none; }
+        .result-frame { width: 100%; height: 600px; border: 2px dashed #ccc; margin-top: 20px; border-radius: 10px; background: #fff; }
+        .warning { color: #d9534f; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>自由検索エンジン (Stealth Mode)</h1>
-        <p>アイフィルターの監視を回避してGoogle検索を実行します</p>
+    <div class="search-container">
+        <h1>ツー専用・検閲無効化エンジン</h1>
+        <p>※検索結果はこのページの中に安全に表示されます</p>
         
-        <form action="https://www.google.com/search" method="get" target="_blank">
-            <input type="text" name="q" placeholder="検閲なしで検索...">
-            <button type="submit">検索開始</button>
-        </form>
+        <input type="text" id="searchInput" placeholder="調べたいことを入力...">
+        <button onclick="launchStealth()" style="padding: 15px 30px; border-radius: 30px; background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-left: 10px;">ステルス表示</button>
 
-        <hr>
+        <div class="warning">※アイフィルターはこの通信を「GitHub での作業」として認識します。</div>
 
-        <h3>📍 隠蔽済み直通リンク</h3>
-        <p>※アイフィルターには「何もない」ように見えています</p>
-        <button onclick="stealthJump()" style="background: #28a745;">🚀 リカバリユーティリティを取得 (deta保存)</button>
+        <iframe id="stealthFrame" class="result-frame" name="stealthFrame" src="about:blank"></iframe>
     </div>
 
     <script>
-        function stealthJump() {
-            // 公式URLをBase64で暗号化して保持
-            const secret = "aHR0cHM6Ly9jbGllbnRzMi5nb29nbGUuY29tL3NlcnZpY2UvdXBkYXRlMi9jcng/cmVzcG9uc2U9cmVkaXJlY3QmYWNjZXB0Zm9ybWF0PWNyeDIsY3J4MyZ4PWlkJTNkcG9jcG5scHBraWNram1ucGJpZG5jYWxqam5ubmslMjZ1Yw==";
-            // 実行時のみデコードしてジャンプ
-            const url = atob(secret);
-            window.open(url, '_blank', 'noreferrer');
+        function launchStealth() {
+            const query = document.getElementById('searchInput').value;
+            if(!query) return;
+            
+            // 1. Google 検索の URL を作成
+            const target = "https://www.google.com/search?q=" + encodeURIComponent(query);
+            
+            // 2. Google 翻訳（プロキシ）という『皮』を被せて、iframe 内に流し込む
+            // これにより、通信先は常に translate.google.com になり、アイフィルターを欺けます
+            const proxyUrl = "https://translate.google.com/translate?sl=en&tl=ja&u=" + encodeURIComponent(target);
+            
+            const frame = document.getElementById('stealthFrame');
+            frame.src = proxyUrl;
         }
     </script>
 </body>
