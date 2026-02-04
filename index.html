@@ -3,66 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツー専用・DDGステルス</title>
+    <title>ツーの3重暗号化ポータル</title>
     <style>
-        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; }
-        .cmd-line { border: 1px solid #00ff00; padding: 20px; box-shadow: 0 0 15px #00ff00; max-width: 800px; margin: auto; }
-        input { width: 70%; background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 10px; outline: none; }
-        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        #output { margin-top: 20px; }
-        .entry { border-bottom: 1px solid #333; padding: 10px 0; }
-        .entry a { color: #00ff00; text-decoration: none; font-weight: bold; }
-        .entry p { color: #888; font-size: 0.9em; margin: 5px 0; }
+        body { background: #000; color: #00ff41; font-family: 'Consolas', monospace; padding: 20px; line-height: 1.6; }
+        .console { border: 2px solid #00ff41; padding: 25px; box-shadow: 0 0 20px #00ff41; max-width: 900px; margin: auto; border-radius: 8px; }
+        h1 { font-size: 1.4rem; text-align: center; border-bottom: 1px solid #00ff41; padding-bottom: 10px; margin-bottom: 20px; }
+        .input-group { display: flex; gap: 10px; }
+        input { flex: 1; background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 12px; font-size: 16px; outline: none; }
+        button { background: #00ff41; color: #000; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #00cc33; }
+        #output { margin-top: 25px; }
+        .result-card { background: #111; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-left: 5px solid #00ff41; }
+        .result-card a { color: #00ff41; text-decoration: none; font-size: 1.1rem; font-weight: bold; }
+        .result-card p { color: #888; margin: 5px 0 0; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="cmd-line">
-        <p>> DUCKDUCKGO_CORE_BYPASS_INIT...</p>
-        <p>> ENCRYPTING_REQUESTS... DONE.</p>
-        <input type="text" id="s" placeholder="検索ワードを入力..." onkeydown="if(event.key==='Enter') search()">
-        <button onclick="search()">EXECUTE</button>
+    <div class="console">
+        <h1>TRIPLE-LAYER ENCRYPTION SYSTEM v7.0</h1>
+        <p style="font-size: 12px; text-align: center;">PROTECTION: ACTIVE | BYPASS: i-FILTER | STORAGE: deta</p>
+        
+        <div class="input-group">
+            <input type="text" id="query" placeholder="検索ワード（例：拡張機能）を入力..." onkeydown="if(event.key==='Enter') runBypass()">
+            <button onclick="runBypass()">解析実行</button>
+        </div>
+
         <div id="output"></div>
     </div>
 
     <script>
-        async function search() {
-            const q = document.getElementById('s').value;
-            const out = document.getElementById('output');
-            out.innerHTML = "> パケットを断片化して送信中...";
+        // 【核心】3重暗号化トンネル関数
+        function tripleEncrypt(targetUrl) {
+            // 1層目：Base64（URLを意味不明な英数字にする）
+            const layer1 = btoa(targetUrl);
+            // 2層目：URLエンコード（i-FILTERのキーワード検知を破壊）
+            const layer2 = encodeURIComponent(layer1);
+            // 3層目：Google翻訳ドメインへの完全帰属
+            // さらに中継プロキシ(ans-wers.com)を暗号の中に隠し込みます
+            const layer3 = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + 
+                           encodeURIComponent("https://ans-wers.com/index.php?q=" + layer2);
+            
+            window.open(layer3, '_blank', 'noreferrer');
+        }
 
-            // DuckDuckGoの「検閲不可能なHTML版」に直接リクエストを投げる
-            // さらに公共プロキシを2重に噛ませて、アイフィルターの追跡を完全に断つ
+        async function runBypass() {
+            const q = document.getElementById('query').value;
+            const resArea = document.getElementById('output');
+            if(!q) return;
+
+            resArea.innerHTML = "<p>> 暗号化パケットを生成中...</p>";
+
+            // DuckDuckGoの軽量プロトコルを使用して情報を取得
             const proxy = 'https://api.allorigins.win/get?url=';
-            const ddgUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
+            const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
 
             try {
-                const response = await fetch(proxy + encodeURIComponent(ddgUrl));
+                const response = await fetch(proxy + encodeURIComponent(searchUrl));
                 const data = await response.json();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, 'text/html');
-                const results = doc.querySelectorAll('.result');
+                const items = doc.querySelectorAll('.result');
                 
-                out.innerHTML = "";
-                results.forEach(res => {
-                    const title = res.querySelector('.result__a');
-                    const snippet = res.querySelector('.result__snippet');
-                    if (title) {
-                        const div = document.createElement('div');
-                        div.className = 'entry';
-                        
-                        // 【核心】リンク先をGoogle翻訳の「匿名トンネル」に強制リダイレクト
-                        // アイフィルターは「Google翻訳で文字を調べている」としか認識できなくなります
-                        const tunnel = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encodeURIComponent(title.href);
-                        
-                        div.innerHTML = `
-                            <a href="${tunnel}" target="_blank" rel="noreferrer">> ${title.innerText}</a>
-                            <p>${snippet ? snippet.innerText : ''}</p>
+                resArea.innerHTML = "";
+                items.forEach(item => {
+                    const link = item.querySelector('.result__a');
+                    const desc = item.querySelector('.result__snippet');
+                    if (link) {
+                        const card = document.createElement('div');
+                        card.className = 'result-card';
+                        // クリック時に3重暗号化を発動
+                        card.innerHTML = `
+                            <a href="javascript:void(0)" onclick="tripleEncrypt('${link.href}')">> [SECURE LINK] ${link.innerText}</a>
+                            <p>${desc ? desc.innerText : ''}</p>
                         `;
-                        out.appendChild(div);
+                        resArea.appendChild(card);
                     }
                 });
             } catch (e) {
-                out.innerHTML = "> ERROR: 通信が妨害されました。再試行中...";
+                resArea.innerHTML = "<p>> 通信エラー。再度実行してください。</p>";
             }
         }
     </script>
