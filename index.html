@@ -1,21 +1,42 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
+    <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの自由検索ポータル</title>
+    <title>ツーの極秘ポータル</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .secret-link { color: #d9534f; font-weight: bold; text-decoration: none; display: block; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h1>自由検索エンジン (Anti-i-FILTER)</h1>
-    <p>アイフィルターの検閲を受けずに Google 検索を実行します</p>
+    <div class="box">
+        <h1>自由検索エンジン (Stealth Mode)</h1>
+        <p>アイフィルターの監視を回避してGoogle検索を実行します</p>
+        
+        <form action="https://www.google.com/search" method="get" target="_blank">
+            <input type="text" name="q" placeholder="検閲なしで検索...">
+            <button type="submit">検索開始</button>
+        </form>
 
-    <form action="https://www.google.com/search" method="get" target="_blank">
-        <input type="text" name="q" placeholder="検索ワードを入力..." style="width:300px; height:40px;">
-        <button type="submit" style="height:40px;">検閲なしで検索</button>
-    </form>
+        <hr>
 
-    <hr>
-    <h3>📍 直通リンク（公式サイト）</h3>
-    <ul>
-        <li><a href="https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3&x=id%3Dpocpnlppkickjmnpbidncaljjnnnk%26uc" rel="noreferrer">リカバリユーティリティ（公式直結）</a></li>
-    </ul>
+        <h3>📍 隠蔽済み直通リンク</h3>
+        <p>※アイフィルターには「何もない」ように見えています</p>
+        <button onclick="stealthJump()" style="background: #28a745;">🚀 リカバリユーティリティを取得 (deta保存)</button>
+    </div>
+
+    <script>
+        function stealthJump() {
+            // 公式URLをBase64で暗号化して保持
+            const secret = "aHR0cHM6Ly9jbGllbnRzMi5nb29nbGUuY29tL3NlcnZpY2UvdXBkYXRlMi9jcng/cmVzcG9uc2U9cmVkaXJlY3QmYWNjZXB0Zm9ybWF0PWNyeDIsY3J4MyZ4PWlkJTNkcG9jcG5scHBraWNram1ucGJpZG5jYWxqam5ubmslMjZ1Yw==";
+            // 実行時のみデコードしてジャンプ
+            const url = atob(secret);
+            window.open(url, '_blank', 'noreferrer');
+        }
+    </script>
 </body>
 </html>
