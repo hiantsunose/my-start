@@ -1,66 +1,10 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer">
-    <title>ツーの極秘ポータル v5.0</title>
-    <style>
-        body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
-        .terminal { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; max-width: 900px; margin: auto; }
-        input { width: 70%; background: #000; border: 1px solid #0f0; color: #0f0; padding: 10px; font-size: 1.2em; }
-        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        .result-item { margin-top: 15px; border-left: 3px solid #0f0; padding-left: 10px; }
-        .result-item a { color: #0f0; text-decoration: none; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="terminal">
-        <h1>STEALTH ENCRYPTED SEARCH v5.0</h1>
-        <p>> i-FILTER BYPASS: MAX_ENCRYPTION | TARGET: deta</p>
-        <input type="text" id="q" placeholder="Enter target..." onkeydown="if(event.key==='Enter') startSearch()">
-        <button onclick="startSearch()">EXECUTE</button>
-        <div id="results"></div>
-    </div>
-
-    <script>
-        // URLを「ibveuafiunir」のようなゴミデータに変換して、プロキシに投げる
-        function superStealthJump(rawUrl) {
-            // 1. URLをBase64でぐちゃぐちゃにする
-            const encodedUrl = btoa(rawUrl);
-            
-            // 2. 匿名プロキシを利用し、パラメータとして暗号化文字列を渡す
-            // これにより、アイフィルターのログには「google」等の文字が一切残らなくなります
-            const proxyBase = "https://ans-wers.com/index.php?q=";
-            window.open(proxyBase + encodedUrl, '_blank', 'noreferrer');
-        }
-
-        async function startSearch() {
-            const query = document.getElementById('q').value;
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "> Encrypting session...";
-
-            const proxy = 'https://api.allorigins.win/get?url=';
-            const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-            
-            try {
-                const response = await fetch(proxy + encodeURIComponent(target));
-                const data = await response.json();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                const links = doc.querySelectorAll('.result__a');
-                
-                resDiv.innerHTML = "";
-                links.forEach(link => {
-                    const div = document.createElement('div');
-                    div.className = 'result-item';
-                    // クリックした瞬間に「生URL」を暗号化関数に渡す
-                    div.innerHTML = `<a href="javascript:void(0)" onclick="superStealthJump('${link.href}')">> [ENCRYPTED_TARGET] ${link.innerText}</a>`;
-                    resDiv.appendChild(div);
-                });
-            } catch (e) {
-                resDiv.innerHTML = "> Connection Error. Retry.";
-            }
-        }
-    </script>
-</body>
-</html>
+function superStealthJump(rawUrl) {
+    // 1. URLを誰にもバレないように加工する
+    const encoded = encodeURIComponent(rawUrl);
+    
+    // 2. Google翻訳をプロキシとして使う（ここが一番ブロックされにくい）
+    // 以下のURL構成なら、アイフィルターは「Google翻訳で何かを調べている」としか判断できません
+    const finalUrl = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encoded;
+    
+    window.open(finalUrl, '_blank', 'noreferrer');
+}
