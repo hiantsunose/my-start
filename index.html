@@ -3,34 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツーの完全無料ステルスポータル</title>
+    <title>ツーの無限ステルスポータル</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #e0e0e0; padding: 20px; }
-        .search-box { background: #1e1e1e; padding: 30px; border-radius: 15px; max-width: 800px; margin: auto; text-align: center; border: 1px solid #333; }
-        input { width: 70%; padding: 15px; border-radius: 30px; border: 1px solid #444; background: #252525; color: white; font-size: 18px; }
-        button { padding: 15px 30px; border-radius: 30px; background: #ff5722; color: white; border: none; cursor: pointer; font-weight: bold; }
-        #results { margin-top: 30px; max-width: 800px; margin-left: auto; margin-right: auto; }
-        .result-item { background: #1e1e1e; padding: 20px; margin-bottom: 15px; border-radius: 10px; border-bottom: 2px solid #333; }
-        .result-item a { color: #5c9aff; font-size: 18px; text-decoration: none; }
-        .snippet { font-size: 14px; color: #aaa; margin-top: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #00ff41; padding: 20px; }
+        .console { background: #000; border: 1px solid #00ff41; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px #00ff41; max-width: 900px; margin: auto; }
+        input { width: 70%; padding: 12px; background: #111; border: 1px solid #00ff41; color: #00ff41; border-radius: 5px; outline: none; }
+        button { padding: 12px 25px; background: #00ff41; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #results { margin-top: 20px; text-align: left; }
+        .result-item { border-bottom: 1px solid #333; padding: 15px; }
+        .result-item a { color: #00ff41; font-size: 18px; text-decoration: none; }
+        .result-item a:hover { text-decoration: underline; }
+        .desc { color: #888; font-size: 14px; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="search-box">
-        <h1>ツー専用・完全無料検索窓</h1>
-        <p>※カード不要、APIキー不要で検閲を回避します</p>
-        <input type="text" id="q" placeholder="検索ワード...">
-        <button onclick="freeSearch()">ステルス検索</button>
+    <div class="console">
+        <h1>UNGOOGLED STEALTH SEARCH v3.0</h1>
+        <p>> i-FILTER BYPASS: ACTIVE | TARGET: deta (D:ドライブ)</p>
+        <input type="text" id="q" placeholder="Enter query..." onkeydown="if(event.key==='Enter') executeStealth()">
+        <button onclick="executeStealth()">SEARCH</button>
+        <div id="results"></div>
     </div>
-    <div id="results"></div>
 
     <script>
-        async function freeSearch() {
+        // 飛び先をすべて「Google翻訳の皮」の中に閉じ込める関数
+        function wrapInStealth(targetUrl) {
+            // translate.google.com をプロキシとして使い、サイト内の移動もすべてこのドメイン内に固定する
+            return "https://translate.google.com/translate?sl=auto&tl=ja&u=" + encodeURIComponent(targetUrl);
+        }
+
+        async function executeStealth() {
             const query = document.getElementById('q').value;
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "解析中...";
+            resDiv.innerHTML = "> Analyzing packets...";
 
-            // カード不要で使えるスクレイピング・プロキシを利用
             const proxy = 'https://api.allorigins.win/get?url=';
             const target = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
             
@@ -39,8 +45,6 @@
                 const data = await response.json();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, 'text/html');
-                
-                // 検索結果のパーツを抽出
                 const links = doc.querySelectorAll('.result__a');
                 const snippets = doc.querySelectorAll('.result__snippet');
                 
@@ -49,17 +53,17 @@
                     const div = document.createElement('div');
                     div.className = 'result-item';
                     
-                    // 飛び先もステルス化（Google翻訳を皮にする）
-                    const stealthUrl = "https://translate.google.com/translate?sl=en&tl=ja&u=" + encodeURIComponent(link.href);
+                    // すべてのリンクを「Google翻訳プロキシ」経由に書き換え
+                    const stealthUrl = wrapInStealth(link.href);
                     
                     div.innerHTML = `
-                        <a href="${stealthUrl}" target="_blank">${link.innerText}</a>
-                        <div class="snippet">${snippets[i] ? snippets[i].innerText : ''}</div>
+                        <a href="${stealthUrl}" target="_blank" rel="noreferrer">${link.innerText}</a>
+                        <div class="desc">${snippets[i] ? snippets[i].innerText : ''}</div>
                     `;
                     resDiv.appendChild(div);
                 });
             } catch (e) {
-                resDiv.innerHTML = "エラーが発生しました。再試行してください。";
+                resDiv.innerHTML = "> Error: Connection reset by peer. Retry.";
             }
         }
     </script>
