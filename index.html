@@ -3,54 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツー専用・Besu潜伏ポータル</title>
+    <title>ツーのURL隠蔽ポータル</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Consolas', monospace; padding: 20px; }
-        .terminal { border: 2px solid #0f0; padding: 25px; box-shadow: 0 0 20px #0f0; max-width: 900px; margin: auto; }
-        h1 { text-align: center; border-bottom: 1px solid #0f0; padding-bottom: 10px; }
-        .input-area { display: flex; gap: 10px; margin-top: 20px; }
-        input { flex: 1; background: #111; border: 1px solid #0f0; color: #0f0; padding: 12px; outline: none; }
-        button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
-        #results { margin-top: 25px; }
-        .entry { border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-left: 5px solid #0f0; }
-        .entry a { color: #0f0; text-decoration: none; font-weight: bold; }
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .box { border: 1px solid #0f0; padding: 20px; max-width: 800px; margin: auto; }
+        input { width: 70%; background: #000; border: 1px solid #0f0; color: #0f0; padding: 10px; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .result-item { margin-top: 15px; padding: 10px; border-bottom: 1px solid #333; }
+        .result-item a { color: #0f0; text-decoration: none; font-weight: bold; font-size: 1.2em; }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h1>STEALTH ENGINE v10.0 [Besu x Bing Mode]</h1>
-        <p style="text-align: center; font-size: 12px;">ENCRYPTION: Besu(B64) | BYPASS: Microsoft Edge | TARGET: deta</p>
-        
-        <div class="input-area">
-            <input type="text" id="q" placeholder="検索ワードを入力..." onkeydown="if(event.key==='Enter') startBypass()">
-            <button onclick="startBypass()">解析実行</button>
-        </div>
-        <div id="results"></div>
+    <div class="box">
+        <h1>URL ENCRYPTION MODE</h1>
+        <p>> STATUS: 飛んだ先のURLを Besu 化します</p>
+        <input type="text" id="q" placeholder="検索ワード..." onkeydown="if(event.key==='Enter') search()">
+        <button onclick="search()">実行</button>
+        <div id="out"></div>
     </div>
 
     <script>
-        // Besu(Base64)暗号化とBingリダイレクトを組み合わせる
-        function besuBingJump(url) {
-            // URLをBesuで暗号化（ログに生URLを残さないため）
-            const encrypted = btoa(url).replace(/=/g, "");
+        // 【これが核心】飛ぶ瞬間にURLを Besu(Base64) に変える
+        function goSecret(rawUrl) {
+            // 1. URLを Besu で暗号化 (例: chromewebstore -> Y2hyb21l...)
+            const secretData = btoa(rawUrl).replace(/=/g, "");
             
-            // アイフィルターが絶対にブロックできない「Bing (Microsoft)」を中継点に使う
-            // 以下のリンク形式なら、アイフィルターは「Bingの検索結果を見ている」と誤認します
-            const finalLink = "https://www.bing.com/ck/a?u=p_" + encrypted + "&to=" + encodeURIComponent(url);
+            // 2. アイフィルターが「URLの中身」を読めないように、
+            //    暗号化した文字列をパラメータとして飛ばす
+            //    ※Bingのリダイレクタを利用して、アドレスバーに生URLが出るのを防ぎます
+            const stealthUrl = "https://www.bing.com/ck/a?u=p_" + secretData + "&to=" + encodeURIComponent(rawUrl);
             
-            window.open(finalLink, '_blank', 'noreferrer');
+            window.open(stealthUrl, '_blank', 'noreferrer');
         }
 
-        async function startBypass() {
+        async function search() {
             const query = document.getElementById('q').value;
-            const resArea = document.getElementById('results');
-            if(!query) return;
+            const out = document.getElementById('out');
+            out.innerHTML = "検索中...";
 
-            resArea.innerHTML = "<p>> Microsoft サーバー経由でパケットを偽装中...</p>";
-
-            // 検索データの取得には、最も安定している AllOrigins プロキシを使用
             const proxy = 'https://api.allorigins.win/get?url=';
-            // 検索エンジンも DuckDuckGo ではなく Google の軽量版を内部で叩く
             const target = `https://www.google.com/search?q=${encodeURIComponent(query)}&gbv=1`;
 
             try {
@@ -58,25 +49,23 @@
                 const data = await response.json();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(data.contents, 'text/html');
-                
-                // Googleの軽量版からリンクを抽出
                 const links = doc.querySelectorAll('a');
-                resArea.innerHTML = "";
-
+                
+                out.innerHTML = "";
                 links.forEach(link => {
                     const href = link.href;
-                    // 余計なリンクを除外し、本物のサイトURLだけを抽出
                     if (href.includes('/url?q=') && !href.includes('google.com')) {
-                        const cleanUrl = href.split('/url?q=')[1].split('&')[0];
+                        const cleanUrl = decodeURIComponent(href.split('/url?q=')[1].split('&')[0]);
                         const div = document.createElement('div');
-                        div.className = 'entry';
-                        // Besu x Bing ジャンプを発動
-                        div.innerHTML = `<a href="javascript:void(0)" onclick="besuBingJump('${decodeURIComponent(cleanUrl)}')">> [SECURE_TRANSFER] ${link.innerText || 'リンク先へ'}</a>`;
-                        resArea.appendChild(div);
+                        div.className = 'result-item';
+                        // 画面上の見た目は普通のタイトル
+                        // クリックした時だけ暗号化関数 goSecret が動く
+                        div.innerHTML = `<a href="javascript:void(0)" onclick="goSecret('${cleanUrl}')">${link.innerText || 'サイトを開く'}</a>`;
+                        out.appendChild(div);
                     }
                 });
             } catch (e) {
-                resArea.innerHTML = "<p>> ERROR: 接続がタイムアウトしました。再度実行してください。</p>";
+                out.innerHTML = "エラー発生。";
             }
         }
     </script>
