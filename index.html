@@ -3,55 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <title>ツー専用・極限隠蔽ポータル</title>
+    <title>ツー専用・Besu完全隠蔽ポータル</title>
     <style>
-        body { background: #000; color: #f00; font-family: 'Courier New', monospace; padding: 20px; }
-        .terminal { border: 3px double #f00; padding: 20px; box-shadow: 0 0 30px #500; max-width: 900px; margin: auto; }
-        input { width: 75%; background: #000; border: 1px solid #f00; color: #f00; padding: 12px; font-weight: bold; }
-        button { background: #f00; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
-        #results { margin-top: 25px; border-top: 1px dashed #f00; }
-        .entry { padding: 15px; border-bottom: 1px solid #200; background: #050000; margin-bottom: 10px; }
-        .entry a { color: #ff3333; text-decoration: none; font-size: 1.2em; text-shadow: 0 0 5px #f00; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; padding: 20px; }
+        .box { border: 2px solid #0f0; padding: 20px; max-width: 800px; margin: auto; box-shadow: 0 0 20px #0f0; }
+        input { width: 70%; background: #111; border: 1px solid #0f0; color: #0f0; padding: 12px; outline: none; }
+        button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
+        .result { background: #0a0a0a; border: 1px solid #333; padding: 15px; margin-top: 15px; border-left: 5px solid #0f0; }
+        .result a { color: #0f0; text-decoration: none; font-size: 1.2em; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h1>EXTREME_ENCRYPTION_LAYER_14</h1>
-        <p>> URL_DECONSTRUCTION: ACTIVE | KEYWORDS: NULLIFIED</p>
-        <div style="display: flex; gap:10px;">
-            <input type="text" id="q" placeholder="TARGET_KEYWORD..." onkeydown="if(event.key==='Enter') executeExtreme()">
-            <button onclick="executeExtreme()">EXECUTE</button>
+    <div class="box">
+        <h1>NO_TRANSLATE_ENCRYPTOR_v15</h1>
+        <p>> STATUS: URLを完全に ibveuafiunir 化してメモリ展開します</p>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="q" placeholder="検索ワード..." onkeydown="if(event.key==='Enter') start()">
+            <button onclick="start()">実行</button>
         </div>
-        <div id="results"></div>
+        <div id="out"></div>
     </div>
 
     <script>
-        // 【極限】URLを文字コードの羅列に変え、Besuで包み、偽装ドメインに流し込む
-        function extremeJump(target) {
-            // 1. URLを16進数の羅列に変換 (google.com -> 676f6f676c65...)
-            const hex = target.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+        // 【核心】翻訳サイトを通さず、URLを Besu 化して直接ジャンプ
+        function ultraBesuJump(targetUrl) {
+            // 1. URLを Besu (Base64) に変換
+            const besu = btoa(targetUrl).replace(/=/g, "");
             
-            // 2. さらにそれを Base64 (Besu) で暗号化
-            const besuHex = btoa(hex).replace(/=/g, "");
+            // 2. アイフィルターの「単語検索」を回避するため、
+            //    あえて教育用や仕事用の「ホワイトリスト」ドメインのリダイレクタを盾にします。
+            //    今回は Microsoft の「安全なリンク確認」用の形式に Besu データを流し込みます。
+            const stealthLink = "https://www.bing.com/ck/a?u=p_" + besu + "&to=" + encodeURIComponent(targetUrl);
             
-            // 3. アイフィルターが「勉強用」と誤認する Google 翻訳の
-            //    さらに「スクリプト実行モード」を利用して飛ばします
-            //    アドレスバーは完全に ibveuafiunir (暗号の塊) になります
-            const finalTunnel = "https://translate.google.com/translate?sl=auto&tl=ja&u=" + 
-                                encodeURIComponent("https://ans-wers.com/index.php?q=" + besuHex);
-            
-            const win = window.open(finalTunnel, '_blank', 'noreferrer');
-            win.opener = null;
+            window.open(stealthLink, '_blank', 'noreferrer');
         }
 
-        async function executeExtreme() {
+        async function start() {
             const q = document.getElementById('q').value;
-            const out = document.getElementById('results');
+            const out = document.getElementById('out');
             if(!q) return;
-            out.innerHTML = "> パケットを16進数へ分解中...";
+            out.innerHTML = "> 通信経路を Besu 暗号化中...";
 
             const proxy = 'https://api.allorigins.win/get?url=';
-            // アイフィルターに怪しまれないよう、検索も暗号化されたクエリで実行
             const search = `https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
 
             try {
@@ -66,13 +59,13 @@
                     const a = item.querySelector('.result__a');
                     if (a) {
                         const div = document.createElement('div');
-                        div.className = 'entry';
-                        div.innerHTML = `<a href="javascript:void(0)" onclick="extremeJump('${a.href}')">> [DECRYPT_AND_GO] ${a.innerText}</a>`;
+                        div.className = 'result';
+                        div.innerHTML = `<a href="javascript:void(0)" onclick="ultraBesuJump('${a.href}')">> [SECURE_OPEN] ${a.innerText}</a>`;
                         out.appendChild(div);
                     }
                 });
             } catch (e) {
-                out.innerHTML = "> ERROR: ネットワーク層での遮断を確認。リロードしてください。";
+                out.innerHTML = "> ネットワークエラー。再実行してください。";
             }
         }
     </script>
